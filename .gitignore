@@ -9,3 +9,5 @@ bin
 /build/
 *.exe
 !.paket/paket.bootstrapper.exe
+
+.DS_Store
