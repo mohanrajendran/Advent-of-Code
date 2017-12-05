@@ -11,3 +11,4 @@ bin
 !.paket/paket.bootstrapper.exe
 
 .DS_Store
+*.sql
