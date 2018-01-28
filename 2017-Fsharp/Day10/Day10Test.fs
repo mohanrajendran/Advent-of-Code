@@ -18,6 +18,6 @@ let ``shiftMult works on test data`` () =
 [<InlineData("AoC 2017", "33efeb34ea91902bb2f59c9920caa6cd")>]
 [<InlineData("1,2,3", "3efbe78a8d82f29979031a4aa0b16a9d")>]
 [<InlineData("1,2,4", "63960835bcdc130f0b66d7ff4f6a5a8e")>]
-let ``knotHash works on test data`` (key, hash) =
+let ``knotHash works on test data`` (key: string, hash: string) =
     knotHash key
     |> should equal hash
