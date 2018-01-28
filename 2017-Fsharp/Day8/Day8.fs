@@ -1,5 +1,4 @@
 module Day8
-open System.Threading.Tasks
 open System.Text.RegularExpressions
 
 type parsedExpression = {reg1: string; op: string; delta: int; reg2: string; comp: string; value: int}
