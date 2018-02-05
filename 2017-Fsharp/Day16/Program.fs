@@ -8,6 +8,5 @@ module Program =
         printfn "Part 1:- %s\nPart 2:- %s"
                 (afterDance ['a'..'p'] input)
                 (afterLongDance ['a'..'p'] input)
-        //        (numGroups input)
         0
         
