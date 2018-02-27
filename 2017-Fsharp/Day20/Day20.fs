@@ -2,7 +2,11 @@ module Day20
 open System
 open System.Text.RegularExpressions
 
-type Vec3 = {x: int; y: int; z: int}
+type Vec3 = 
+    {x: int; y: int; z: int}
+
+    static member (+) (v1: Vec3, v2: Vec3) =
+        {x = v1.x + v2.x; y = v1.y + v2.y; z = v1.z + v2.z} 
 type Particle = {P: Vec3; V: Vec3; A: Vec3}
 
 let manhattanDistance (pos: Vec3) =
@@ -24,3 +28,31 @@ let closestParticle (input: string[]) =
     |> Array.mapi (fun i p -> (i, p.A |> manhattanDistance))
     |> Array.minBy snd
     |> fst
+
+let removeCollided (particles: Particle[]) =
+    let collidedLocations =
+        particles
+        |> Array.groupBy (fun p -> p.P)
+        |> Array.filter (fun (_, p) -> p.Length <> 1)
+        |> Array.map fst
+
+    particles
+    |> Array.filter (fun p -> collidedLocations |> Array.contains p.P |> not)
+
+let moveParticle (particle: Particle) =
+    {particle with V = particle.V + particle.A; 
+                   P = particle.P + particle.V + particle.A}
+
+let oneStep (particles: Particle[]) =
+    particles 
+    |> removeCollided 
+    |> Array.map moveParticle
+
+let uncollidedParticles (input: string[]) =
+    let particles =
+        input
+        |> Array.map parseLine
+
+    [0..1000]
+    |> List.fold (fun particles _ -> particles |> oneStep) particles
+    |> Array.length
