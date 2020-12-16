@@ -66,8 +66,8 @@ defmodule Passports do
     |> Enum.all?(&fieldIsValid/1)
   end
 
-  def passports1(content) do
-    content
+  def passports1(contents) do
+    contents
     |> String.split("\n", trim: false)
     |> Enum.chunk_while([], fn element, acc -> 
       if String.length(element) != 0 do
@@ -79,8 +79,8 @@ defmodule Passports do
     |> Enum.count(&requiredFieldsPresent/1)
   end
 
-  def passports2(content) do
-    content
+  def passports2(contents) do
+    contents
     |> String.split("\n", trim: false)
     |> Enum.chunk_while([], fn element, acc -> 
       if String.length(element) != 0 do
