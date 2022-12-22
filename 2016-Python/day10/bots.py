@@ -10,9 +10,11 @@ class Bots:
         self.srcForBot = {}
         self.srcForOutput = {}
         self.destForValue = {}
-        self.lowDestForBot = {}
-        self.highDestForBot = {}
+        self.loDestForBot = {}
+        self.hiDestForBot = {}
+
         self.valuesForBot = {}
+        self.valuesForOutput = {}
 
     def consume(self, instruction):
         if inputRe.match(instruction):
@@ -25,28 +27,29 @@ class Bots:
 
         elif propagateRe.match(instruction):
             sourceBot = int(propagateRe.match(instruction).groups()[0])
-            lowDestType = propagateRe.match(instruction).groups()[1]
-            lowDestIndex = int(propagateRe.match(instruction).groups()[2])
-            highDestType = propagateRe.match(instruction).groups()[3]
-            highDestIndex = int(propagateRe.match(instruction).groups()[4])
-            if lowDestType == 'bot':
-                if lowDestIndex not in self.srcForBot:
-                    self.srcForBot[lowDestIndex] = []
-                self.srcForBot[lowDestIndex].append(('bot', sourceBot))
+            loDestType = propagateRe.match(instruction).groups()[1]
+            loDestIndex = int(propagateRe.match(instruction).groups()[2])
+            hiDestType = propagateRe.match(instruction).groups()[3]
+            hiDestIndex = int(propagateRe.match(instruction).groups()[4])
+            if loDestType == 'bot':
+                if loDestIndex not in self.srcForBot:
+                    self.srcForBot[loDestIndex] = []
+                self.srcForBot[loDestIndex].append(('bot', sourceBot))
             else:
-                self.srcForOutput[lowDestIndex] = sourceBot
-            self.lowDestForBot[sourceBot] = (lowDestType, lowDestIndex)
+                self.srcForOutput[loDestIndex] = sourceBot
+            self.loDestForBot[sourceBot] = (loDestType, loDestIndex)
 
-            if highDestType == 'bot':
-                if highDestIndex not in self.srcForBot:
-                    self.srcForBot[highDestIndex] = []
-                self.srcForBot[highDestIndex].append(('bot', sourceBot))
+            if hiDestType == 'bot':
+                if hiDestIndex not in self.srcForBot:
+                    self.srcForBot[hiDestIndex] = []
+                self.srcForBot[hiDestIndex].append(('bot', sourceBot))
             else:
-                self.srcForOutput[highDestIndex] = sourceBot
-            self.highDestForBot[sourceBot] = (highDestType, highDestIndex)
+                self.srcForOutput[hiDestIndex] = sourceBot
+            self.hiDestForBot[sourceBot] = (hiDestType, hiDestIndex)
 
-    def pushInputValue(self, value):
-        self.populateValueForBot(self.destForValue[value])
+    def populateBots(self):
+        for botId in self.srcForBot:
+            self.populateValueForBot(botId)
 
     def populateValueForBot(self, botId):
         if botId in self.valuesForBot:
@@ -56,7 +59,29 @@ class Bots:
             if src[0] == 'value':
                 values.append(src[1])
             else:
-                self.populateValueForBot(src[1])
+                srcBot = src[1]
+                self.populateValueForBot(srcBot)
+                srcBotLowDest = self.loDestForBot[srcBot]
+                srcBotHighDest = self.hiDestForBot[srcBot]
+                if srcBotLowDest[0] == 'bot' and srcBotLowDest[1] == botId:
+                    values.append(min(self.valuesForBot[srcBot]))
+                elif srcBotHighDest[0] == 'bot' and srcBotHighDest[1] == botId:
+                    values.append(max(self.valuesForBot[srcBot]))
+        self.valuesForBot[botId] = values
+
+    def getBotWithValue(self, values):
+        for botId in self.srcForBot:
+            if tuple(sorted(self.valuesForBot[botId])) == values:
+                return botId
+
+    def getOutput(self, outputId):
+        srcBot = self.srcForOutput[outputId]
+        srcBotLowDest = self.loDestForBot[srcBot]
+        srcBotHighDest = self.hiDestForBot[srcBot]
+        if srcBotLowDest[0] == 'output' and srcBotLowDest[1] == outputId:
+            return min(self.valuesForBot[srcBot])
+        elif srcBotHighDest[0] == 'output' and srcBotHighDest[1] == outputId:
+            return max(self.valuesForBot[srcBot])
 
 
 def part1():
@@ -64,9 +89,16 @@ def part1():
         b = Bots()
         for line in f.readlines():
             b.consume(line.strip())
-        b.pushInputValue(61)
-        b.pushInputValue(17)
-        #print(b.getBotWithValue((17, 61)))
+        b.populateBots()
+        print(b.getBotWithValue((17, 61)))
 
+def part2():
+    with open('input') as f:
+        b = Bots()
+        for line in f.readlines():
+            b.consume(line.strip())
+        b.populateBots()
+        print(b.getOutput(0) * b.getOutput(1) * b.getOutput(2))
 
 part1()
+part2()
