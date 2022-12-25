@@ -5,7 +5,7 @@ import java.security.MessageDigest
  * Reads lines from the given input txt file.
  */
 fun readInput(name: String) =
-    object {}.javaClass.getResourceAsStream(name)?.bufferedReader()?.readLines()?.map { it.trim() }!!
+    object {}.javaClass.getResourceAsStream(name)?.bufferedReader()?.readLines()!!
 
 
 /**
